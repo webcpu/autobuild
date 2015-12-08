@@ -222,26 +222,10 @@ class Target(object):
 # Hard-coded target definition.
 g_project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 g_source_root = os.path.join(g_project_root, "Sources")
-targets = [
-    Target('PackageDescription'),
-    Target('libc'),
-    Target('POSIX', dependencies=["libc"]),
-    Target('sys', dependencies=["POSIX", "libc"]),
-    Target('dep', dependencies=["sys", "PackageDescription"]),
-    # Target('swift-build', dependencies=["dep", "sys", "PackageDescription",
-                                        # "POSIX", "libc"]),
 
-    # Test targets.
-    # Target('PackageDescription-tests', subpath="../Tests/PackageDescription",
-           # dependencies=["dep", "sys", "PackageDescription", "POSIX", "libc"],
-           # is_test=True),
-    # Target('sys-tests', subpath="../Tests/sys",
-            # dependencies=["sys", "POSIX", "libc"],
-            # is_test=True),
-    Target('dep-tests', subpath="../Tests/dep",
-            dependencies=["dep"],
-            is_test=True)
-]
+targets_path = os.path.dirname(os.path.realpath(__file__)) + '/targets'
+execfile(targets_path)
+
 target_map = dict((t.name,t) for t in targets)
 
 def create_bootstrap_files(sandbox_path, opts):

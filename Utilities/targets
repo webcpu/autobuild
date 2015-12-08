@@ -1,20 +1,20 @@
- targets = [
-     Target('PackageDescription'),
-     Target('libc'),
-     Target('POSIX', dependencies=["libc"]),
-     Target('sys', dependencies=["POSIX", "libc"]),
-     Target('dep', dependencies=["sys", "PackageDescription"]),
-     # Target('swift-build', dependencies=["dep", "sys", "PackageDescription",
-                                         # "POSIX", "libc"]),
+targets = [
+    Target('PackageDescription'),
+    Target('libc'),
+    Target('POSIX', dependencies=["libc"]),
+    Target('sys', dependencies=["POSIX", "libc"]),
+    Target('dep', dependencies=["sys", "PackageDescription"]),
+    # Target('swift-build', dependencies=["dep", "sys", "PackageDescription",
+                                        # "POSIX", "libc"]),
 
-     # Test targets.
-     # Target('PackageDescription-tests', subpath="../Tests/PackageDescription",
-            # dependencies=["dep", "sys", "PackageDescription", "POSIX", "libc"],
+    # Test targets.
+    # Target('PackageDescription-tests', subpath="../Tests/PackageDescription",
+           # dependencies=["dep", "sys", "PackageDescription", "POSIX", "libc"],
+           # is_test=True),
+    # Target('sys-tests', subpath="../Tests/sys",
+            # dependencies=["sys", "POSIX", "libc"],
             # is_test=True),
-     # Target('sys-tests', subpath="../Tests/sys",
-             # dependencies=["sys", "POSIX", "libc"],
-             # is_test=True),
-     Target('dep-tests', subpath="../Tests/dep",
-             dependencies=["dep"],
-             is_test=True)
- ]
+    Target('dep-tests', subpath="../Tests/dep",
+            dependencies=["dep"],
+            is_test=True)
+]
