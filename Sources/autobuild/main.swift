@@ -2,8 +2,12 @@ import Foundation
 
 import libc
 import POSIX
+import dep
 import CommandLine
 import HaskellSwift
+
+public var globalCanFswatch = true
+public var globalFswatchTask : NSTask? = nil
 
 public extension NSString {
     func rstrip() -> String {
@@ -31,31 +35,31 @@ func initTask(arguments: [String]) -> NSTask {
     task.launchPath = head(arguments)
     task.arguments  = tail(arguments)
     task.standardOutput = NSPipe()
+
     return task
 }
 
-func popen(arguments: [String], lineHandler: String -> Void) {
+func monitor(arguments: [String], action: String -> Void) {
     let task        = initTask(arguments)
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
+
+    task.terminationHandler = { (aTask: NSTask) -> Void in
+        wait(nil)
+        Log.error("Terminated subprocesses")
+        exit(1)
+    }
+
+    globalFswatchTask = task
+    Async.background {
         task.launch()
-        dispatch_async(dispatch_get_main_queue(), {
-            print("Task is termintated")
-        })
-    })
-    
-    //let handler = { (line: String) in
-    //if let ext  = NSURL(string: line)?.pathExtension?.lowercaseString {
-    //if ext.lowercaseString == "swift" {
-    //print(line)
-    //}
-    //}
-    //}
-    
-    while (true) {
-        if let name = readline(task.standardOutput!.fileHandleForReading) {
-            lineHandler(name)
+    }
+
+    while (globalCanFswatch) {
+        let fileHandle  = task.standardOutput!.fileHandleForReading
+        if let line     = readline(fileHandle) {
+            action(line)
         }
     }
+    task.terminate()
 }
 
 private struct Options {
@@ -72,6 +76,39 @@ private struct Options {
         helpMessage: "Print the help message")
 }
 
+func shouldExecute(line: String) -> Bool {
+    if let ext  = NSURL(string: line)?.pathExtension?.lowercaseString {
+        if ext.lowercaseString == "swift" {
+            return true
+        }
+    }
+    return false
+}
+
+func executeSyncTask(executable: String) {
+    print(executable)
+    let notified    = dispatch_semaphore_create(0)
+    let task        = NSTask()
+    task.launchPath = executable
+    task.terminationHandler = { (aTask: NSTask) -> Void in
+        dispatch_semaphore_signal(notified)
+    }
+    
+    task.launch()
+    task.waitUntilExit()
+    
+    dispatch_semaphore_wait(notified, DISPATCH_TIME_FOREVER)
+}
+
+func handleLine(line: String, executable: String?) {
+    if executable != nil && !shouldExecute(line) {
+        return
+    }
+    
+    print(line)
+    executeSyncTask(executable!)
+}
+
 func monitorFSEvents(dir: String, executable: String?) {
     guard let fswatch = which("fswatch") else {
         print("Please install fswatch at first:")
@@ -79,20 +116,14 @@ func monitorFSEvents(dir: String, executable: String?) {
         exit(1)
     }
     
-    let arguments = [fswatch.rstrip(), dir] //"/Users/liang/Dropbox/OSX/autobuild"]
-    print("Start monitoring \(dir)")
-   
+    let arguments = [fswatch.rstrip(), dir]
+    Log.info("Start monitoring \(dir)")
+    
     let lineHandler = { (line: String) in
-        if let ext  = NSURL(string: line)?.pathExtension?.lowercaseString {
-            if ext.lowercaseString == "swift" {
-                print(line)
-                if executable != nil {
-                    _ = try? popen([executable!])
-                }
-            }
-        }
+        handleLine(line, executable: executable)
     }
-    //popen(arguments, lineHandler: lineHandler)
+    
+    monitor(arguments, action: lineHandler)
 }
 
 func main(args: [String]) throws {
@@ -122,11 +153,27 @@ func main(args: [String]) throws {
 //let args        = Array(Process.arguments)
 let args = ["/Users/liang/Dropbox/OSX/autobuild/.build/debug/autobuild", "-e", "/Users/liang/Dropbox/OSX/autobuild/Utilities/build.sh"]//, "--chdir", "/Users/liang/Dropbox/OSX/autobuil"]
 print(args)
+
+func ignoreterm(_: Int32)  {
+    print("term")
+}
+
+func ignoreint(pid: Int32)  {
+    Log.error("\nTerminating subprocesses")
+    globalCanFswatch = false
+    if globalFswatchTask != nil {
+        globalFswatchTask!.terminate()
+    }
+    wait(nil)
+}
+
+signal(SIGTERM, ignoreterm)
+signal(SIGINT, ignoreint)
+
 do {
     try main(args)
 } catch {
     print("autobuild:", error)
     exit(1)
 }
-
 

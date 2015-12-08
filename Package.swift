@@ -9,9 +9,9 @@ let package = Package(
         Target(
             name: "POSIX",
             dependencies: [.Target(name: "libc")]),
-        //Target(
-        //name: "dep",
-        //dependencies: [.Target(name: "sys"), .Target(name: "PackageDescription")]),
+        Target(
+        name: "dep",
+        dependencies: [.Target(name: "sys"), .Target(name: "PackageDescription")]),
         Target(
             name: "CommandLine",
             dependencies: [.Target(name: "libc")]),
@@ -23,6 +23,7 @@ let package = Package(
             dependencies: [.Target(name: "libc"),
                 .Target(name: "POSIX"),
                 .Target(name: "sys"),
+                .Target(name: "dep"),
                 .Target(name: "HaskellSwift"),
                 .Target(name: "CommandLine")
             ])
