@@ -10,23 +10,28 @@ let package = Package(
             name: "POSIX",
             dependencies: [.Target(name: "libc")]),
         Target(
-        name: "dep",
-        dependencies: [.Target(name: "sys"), .Target(name: "PackageDescription")]),
-        Target(
             name: "CommandLine",
             dependencies: [.Target(name: "libc")]),
         Target(
-            name: "HaskellSwift",
-            dependencies: [.Target(name: "libc")]),
-        Target(
+            name: "dep",
+            dependencies: [
+                .Target(name: "sys"), 
+                .Target(name: "PackageDescription"), 
+                .Target(name: "HaskellSwift"),
+                .Target(name: "POSIX"),
+                .Target(name: "libc"),
+                .Target(name: "CommandLine")
+            ]),
+                Target(
             name: "autobuild",
             dependencies: [.Target(name: "libc"),
-                .Target(name: "POSIX"),
                 .Target(name: "sys"),
-                .Target(name: "dep"),
-                .Target(name: "HaskellSwift"),
-                .Target(name: "CommandLine")
-            ])
+                .Target(name: "dep")
+            ]),
+        /*Target(*/
+            /*name: "",*/
+            /*dependencies: [.Target(name: "libc")]),*/
     ]
 )
+
 

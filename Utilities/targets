@@ -1,12 +1,14 @@
+#!/usr/bin/env python
 targets = [
     Target('PackageDescription'),
     Target('libc'),
+    Target('HaskellSwift'),
+    Target('CommandLine'),
     Target('POSIX', dependencies=["libc"]),
     Target('sys', dependencies=["POSIX", "libc"]),
-    Target('dep', dependencies=["sys", "PackageDescription"]),
+    Target('dep', dependencies=["sys", "PackageDescription", "libc", "POSIX", "HaskellSwift", "CommandLine"]),
     # Target('swift-build', dependencies=["dep", "sys", "PackageDescription",
                                         # "POSIX", "libc"]),
-
     # Test targets.
     # Target('PackageDescription-tests', subpath="../Tests/PackageDescription",
            # dependencies=["dep", "sys", "PackageDescription", "POSIX", "libc"],
@@ -15,6 +17,6 @@ targets = [
             # dependencies=["sys", "POSIX", "libc"],
             # is_test=True),
     Target('dep-tests', subpath="../Tests/dep",
-            dependencies=["dep"],
-            is_test=True)
-]
+        dependencies=["dep", "POSIX", "CommandLine"],
+        is_test=True)
+    ]
