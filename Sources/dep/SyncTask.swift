@@ -6,6 +6,7 @@ public struct SyncTask {
     }
 
     public static func execute(launchPath: String, arguments: [String]) {
+        //Init Task
         let semaphore   = dispatch_semaphore_create(0)
         let task        = NSTask()
         task.launchPath = launchPath
@@ -14,9 +15,11 @@ public struct SyncTask {
             dispatch_semaphore_signal(semaphore)
         }
 
+        //Launch Task
         task.launch()
-        task.waitUntilExit()
 
+        //Wait for Task
+        task.waitUntilExit()
         dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
     }
 }

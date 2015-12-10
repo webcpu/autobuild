@@ -4,6 +4,16 @@ import POSIX
 import CommandLine
 import HaskellSwift
 
+enum VendingMachineError: ErrorType {
+    case InvalidSelection
+    case InsufficientFunds(coinsNeeded: Int)
+    case OutOfStock
+}
+
+public enum AutobuildError: ErrorType {
+    case InvalidParameter(hint: String)
+}
+
 private struct Options {
     let chdir = StringOption(shortFlag: "c",
         longFlag: "chdir",
@@ -21,7 +31,7 @@ private struct Options {
 var eventMonitor : FSEventMonitor? = nil
 
 //MARK: main
-public func main(args: [String]) {
+public func main(args: [String]) throws {
     let cli         = CommandLine(arguments: args)
     let options     = Options()
     cli.addOptions(options.help, options.chdir, options.executable)
@@ -35,20 +45,45 @@ public func main(args: [String]) {
     }
 
     //validate arguments
-    let rootd      = options.chdir.value ?? (try? getcwd())
-    guard let executable = options.executable.value  else {
-        let hint = "please use use -s to indicate the build script path"
-        print(hint)
-        exit(1)
+    guard let rootd = options.chdir.value ?? (try? getcwd()) else {
+        let hint = "The project root directory is invalid"
+        throw AutobuildError.InvalidParameter(hint: hint)
     }
 
-    //monitor file changes
-    do {
-        try monitor(rootd!, executable: executable)
-    } catch {
-        print("autobuild:", error)
-        exit(1)
+    //Check if it's a directory and the directory exsists
+    if !isDirectory(rootd) {
+        let hint = "The project root directory doesn't exist"
+        throw AutobuildError.InvalidParameter(hint: hint)
     }
+
+    guard let executable = options.executable.value  else {
+        let hint = "Please use -s to indicate the build script path"
+        throw AutobuildError.InvalidParameter(hint: hint)
+    }
+
+    //Check if file exsists.
+    if !isExecutableFile(executable) {
+        let hint = "The build script isn't executable or doesn't exist"
+        throw AutobuildError.InvalidParameter(hint: hint)
+    }
+
+    //Monitor file changes
+    try monitor(rootd, executable: executable)
+}
+
+func isExecutableFile(path: String) -> Bool {
+    let manager         = NSFileManager.defaultManager()
+    var isDir: ObjCBool = false
+    let fileExists      = manager.fileExistsAtPath(path, isDirectory: &isDir)
+    let executable      = manager.isExecutableFileAtPath(path)
+    return  fileExists && !isDir && executable
+}
+
+func isDirectory(path: String) -> Bool {
+    let manager         = NSFileManager.defaultManager()
+    var isDir: ObjCBool = false
+    let fileExists      = manager.fileExistsAtPath(path, isDirectory: &isDir)
+    return  fileExists && isDir
 }
 
 //MARK: monitor
