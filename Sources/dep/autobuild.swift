@@ -11,6 +11,7 @@ enum VendingMachineError: ErrorType {
 }
 
 public enum AutobuildError: ErrorType {
+    case InvalidUsage
     case InvalidParameter(hint: String)
 }
 
@@ -20,7 +21,7 @@ private struct Options {
         helpMessage: "Change working directory before any other operation")
 
     let executable = StringOption(shortFlag: "s",
-        longFlag: "s",
+        longFlag: "script",
         helpMessage: "Build script path")
 
     let help = BoolOption(shortFlag: "h",
@@ -34,17 +35,22 @@ var eventMonitor : FSEventMonitor? = nil
 public func main(args: [String]) throws {
     let cli         = CommandLine(arguments: args)
     let options     = Options()
-    cli.addOptions(options.help, options.chdir, options.executable)
+    cli.addOptions(options.executable, options.chdir, options.help)
 
     //parse options
     do {
         try cli.parse()
     } catch {
         cli.printUsage(error)
-        exit(EX_USAGE)
+        throw AutobuildError.InvalidUsage
     }
 
     //validate arguments
+    if options.help.value {
+        cli.printUsage()
+        return
+    }
+
     guard let rootd = options.chdir.value ?? (try? getcwd()) else {
         let hint = "The project root directory is invalid"
         throw AutobuildError.InvalidParameter(hint: hint)
