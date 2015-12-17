@@ -1,7 +1,6 @@
 import Foundation
 import libc
 import POSIX
-import HaskellSwift
 
 public extension NSString {
     func rstrip() -> String {

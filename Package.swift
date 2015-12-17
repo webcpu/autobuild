@@ -17,7 +17,6 @@ let package = Package(
             dependencies: [
                 .Target(name: "sys"), 
                 .Target(name: "PackageDescription"), 
-                .Target(name: "HaskellSwift"),
                 .Target(name: "POSIX"),
                 .Target(name: "libc"),
                 .Target(name: "CommandLine")

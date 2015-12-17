@@ -2,7 +2,6 @@ import Foundation
 import libc
 import POSIX
 import CommandLine
-import HaskellSwift
 
 enum VendingMachineError: ErrorType {
     case InvalidSelection
@@ -35,7 +34,7 @@ var eventMonitor : FSEventMonitor? = nil
 public func main(args: [String]) throws {
     let cli         = CommandLine(arguments: args)
     let options     = Options()
-    cli.addOptions(options.executable, options.chdir, options.help)
+    cli.addOptions(options.chdir, options.executable, options.help)
 
     //parse options
     do {
@@ -101,7 +100,7 @@ func monitor(dir: String, executable: String) throws {
     installSignalHandlers()
 
     let lineHandler = { (line: String) in
-        handleLine(line, executable: executable)
+        handleLine1(line, executable: executable)
     }
 
     eventMonitor = FSEventMonitor(arguments: [dir], action: lineHandler)
@@ -123,8 +122,23 @@ func handleLine(line: String, executable: String) {
     }
 
     print(line)
+    //SyncTask.execute(executable)
+    let arguments = [executable]
+    try? popen(arguments, redirectStandardError: true, environment:[:]) { line in
+        print(line)
+        print(line.characters.count)
+    }
+}
+
+func handleLine1(line: String, executable: String) {
+    if !isSwiftFile(line) {
+        return
+    }
+
+    print(line)
     SyncTask.execute(executable)
 }
+
 
 func installSignalHandlers() {
     signal(SIGINT, terminateProcessTree)
