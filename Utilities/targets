@@ -2,11 +2,10 @@
 targets = [
     Target('PackageDescription'),
     Target('libc'),
-    Target('HaskellSwift'),
     Target('CommandLine'),
     Target('POSIX', dependencies=["libc"]),
     Target('sys', dependencies=["POSIX", "libc"]),
-    Target('dep', dependencies=["sys", "PackageDescription", "libc", "POSIX", "HaskellSwift", "CommandLine"]),
+    Target('dep', dependencies=["sys", "PackageDescription", "libc", "POSIX", "CommandLine"]),
     # Target('swift-build', dependencies=["dep", "sys", "PackageDescription",
                                         # "POSIX", "libc"]),
     # Test targets.

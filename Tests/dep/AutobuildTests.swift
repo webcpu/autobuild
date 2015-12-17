@@ -10,7 +10,7 @@ class AutobuildTests: XCTestCase {
         do {
             try main(args)
         } catch let error {
-            XCTFail("Unknown error")
+            XCTFail("Unexpected error")
         }
     }
 
@@ -21,7 +21,7 @@ class AutobuildTests: XCTestCase {
             XCTFail("It was expected to fail because of invalid usage")
         } catch AutobuildError.InvalidParameter(let hint) {
         } catch let error {
-            XCTFail("Unknown error, it was expected to fail because of invalid usage")
+            XCTFail("Unexpected error, it was expected to fail because of invalid usage")
         }
     }
     
@@ -32,7 +32,7 @@ class AutobuildTests: XCTestCase {
             XCTFail("It was expected to fail because of invalid usage")
         } catch AutobuildError.InvalidUsage {
         } catch let error {
-            XCTFail("Unknown error, it was expected to fail because of invalid usage")
+            XCTFail("Unexpected error, it was expected to fail because of invalid usage")
         }
     }
     
@@ -43,7 +43,7 @@ class AutobuildTests: XCTestCase {
             XCTFail("It was expected to fail because of invalid usage")
         } catch AutobuildError.InvalidParameter(let hint) {
         } catch let error {
-            XCTFail("Unknown error, it was expected to fail because of invalid usage")
+            XCTFail("Unexpected error, it was expected to fail because of invalid usage")
         }
     }
 
@@ -54,7 +54,7 @@ class AutobuildTests: XCTestCase {
             XCTFail("It was expected to fail because of invalid usage")
         } catch AutobuildError.InvalidParameter(let hint) {
         } catch let error {
-            XCTFail("Unknown error, it was expected to fail because of invalid usage")
+            XCTFail("Unexpected error, it was expected to fail because of invalid usage")
         }
     }
 }
