@@ -3,8 +3,14 @@ import XCTest
 @testable import dep
 
 class AutobuildTests: XCTestCase {
-    let autobuild = "/Users/liang/Dropbox/OSX/autobuild/.build/debug/autobuild"
-    
+    var path: String?
+    var autobuild: String = ""
+
+   override func setUp() {
+        path = NSBundle(forClass: self.dynamicType).bundlePath
+        autobuild = path! + "/../../../../.build/debug/autobuild"
+    }
+
     func testHelp() {
         let args = [autobuild, "--help"]
         do {

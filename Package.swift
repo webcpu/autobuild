@@ -16,7 +16,6 @@ let package = Package(
             name: "dep",
             dependencies: [
                 .Target(name: "sys"), 
-                .Target(name: "PackageDescription"), 
                 .Target(name: "POSIX"),
                 .Target(name: "libc"),
                 .Target(name: "CommandLine")
@@ -27,9 +26,6 @@ let package = Package(
                 .Target(name: "sys"),
                 .Target(name: "dep")
             ]),
-        /*Target(*/
-            /*name: "",*/
-            /*dependencies: [.Target(name: "libc")]),*/
     ]
 )
 
