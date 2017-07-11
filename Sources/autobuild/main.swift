@@ -1,7 +1,7 @@
 import Foundation
 import dep
 
-let args        = Array(Process.arguments)
+let args        = Array(CommandLine.arguments)
 do {
     try main(args)
 } catch AutobuildError.InvalidUsage {
@@ -13,4 +13,5 @@ do {
     print("autobuild:", error)
     exit(1)
 }
+
 

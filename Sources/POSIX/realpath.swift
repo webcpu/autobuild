@@ -1,7 +1,7 @@
 /*
  This source file is part of the Swift.org open source project
 
- Copyright 2015 Apple Inc. and the Swift project authors
+ Copyright (c) 2014 - 2017 Apple Inc. and the Swift project authors
  Licensed under Apache License v2.0 with Runtime Library Exception
 
  See http://swift.org/LICENSE.txt for license information
@@ -21,11 +21,10 @@ import func libc.realpath
  pathname.  All components in the provided input must exist when realpath()
  is called.
 */
-public func realpath(path: String...) throws -> String {
-    let path = joinPathComponents(path)
+public func realpath(_ path: String) throws -> String {
     let rv = realpath(path, nil)
     guard rv != nil else { throw SystemError.realpath(errno, path) }
     defer { free(rv) }
-    guard let rvv = String.fromCString(rv) else { throw SystemError.realpath(-1, path) }
+    guard let rvv = String(validatingUTF8: rv!) else { throw SystemError.realpath(-1, path) }
     return rvv
 }

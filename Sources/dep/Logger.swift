@@ -1,9 +1,10 @@
+
 import Foundation
 
     
 struct ConsoleColor {
-    private static let escape   = "\u{001b}"
-    private static let reset    = escape + "[0m"
+    static let escape   = "\u{001b}"
+    static let reset    = escape + "[0m"
     private static let blue     = escape + "[34m"
     private static let red      = escape + "[31m"
     private static let white    = escape + "[37m"
@@ -20,33 +21,33 @@ struct ConsoleColor {
 }
 
 public struct Log {
-    private static func log(@autoclosure closure: () -> String?, color: String) {
+    private static func log(_ closure: @autoclosure () -> String?, _ color: String) {
         let s       = closure() ?? "nil"
         let text    = color + s +  ConsoleColor.reset
         print(text)
     }
 
-    public static func verbose(@autoclosure closure: () -> String?) {
-        log(closure, color: ConsoleColor.verbose)
+    public static func verbose(_ closure: @autoclosure () -> String?) {
+        log(closure, ConsoleColor.verbose)
     }
 
-    public static func debug(@autoclosure closure: () -> String?) {
-        log(closure, color: ConsoleColor.debug)
+    public static func debug(_ closure: @autoclosure () -> String?) {
+        log(closure, ConsoleColor.debug)
     }
 
-    public static func info(@autoclosure closure: () -> String?) {
-        log(closure, color: ConsoleColor.info)
+    public static func info(_ closure: @autoclosure () -> String?) {
+        log(closure, ConsoleColor.info)
     }
 
-    public static func warning(@autoclosure closure: () -> String?) {
-        log(closure, color: ConsoleColor.warning)
+    public static func warning(_ closure: @autoclosure () -> String?) {
+        log(closure, ConsoleColor.warning)
     }
 
-    public static func error(@autoclosure closure: () -> String?) {
-        log(closure, color: ConsoleColor.error)
+    public static func error( closure: @autoclosure () -> String?) {
+        log(closure, ConsoleColor.error)
     }
 
-    static func severe(@autoclosure closure: () -> String?) {
-        log(closure, color: ConsoleColor.severe)
+    static func severe( closure: @autoclosure () -> String?) {
+        log(closure, ConsoleColor.severe)
     }
 }

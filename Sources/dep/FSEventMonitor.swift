@@ -4,22 +4,22 @@ import POSIX
 
 public extension NSString {
     func rstrip() -> String {
-        return self.stringByTrimmingCharactersInSet(NSCharacterSet.newlineCharacterSet())
+        return self.trimmingCharacters(in: NSCharacterSet.newlines)
     }
 }
 
 public struct FSEventMonitor {
-    public let task: NSTask
+    public let task: Process
     public var canMonitor = true
-    public let action: String -> Void
+    public let action: (String) -> Void
 
-    public init(arguments: [String], action: String -> Void) {
+    public init(arguments: [String], action: @escaping (String) -> Void) {
         self.action     = action
 
-        task                = NSTask()
+        task                = Process()
         task.launchPath     = fswatchPath()
         task.arguments      = arguments
-        task.standardOutput = NSPipe()
+        task.standardOutput = Pipe()
     }
 
     func fswatchPath() -> String? {
@@ -32,48 +32,49 @@ public struct FSEventMonitor {
             } else {
                 print("Please install fswatch at first:")
                 print("brew install fswatch")
-                exit(1)
+                abort()
             }
         }
-        
+
         return path!.rstrip()
     }
-    
+
     public func run() {
-        task.terminationHandler = { (aTask: NSTask) -> Void in
+        task.terminationHandler = { (aTask: Process) -> Void in
             wait(nil)
-            Log.error("Terminated subprocesses")
-            exit(1)
+            Log.error(closure: "Terminated subprocesses")
+            abort()
         }
-        
+
         Async.background {
             self.task.launch()
         }
-        
+
         while (canMonitor) {
-            let fileHandle  = task.standardOutput!.fileHandleForReading
-            if let line     = readline(fileHandle) {
+            let fileHandle  = (task.standardOutput! as AnyObject).fileHandleForReading
+            if let line     = readline(fileHandle: fileHandle!) {
+                print("Event: \(line)")
                 action(line)
             }
         }
         task.terminate()
     }
-    
+
     public mutating func terminate() {
         canMonitor = false
         task.terminate()
     }
-    
-    private func readline(fileHandle: NSFileHandle) -> String? {
-        guard let s = NSString(data:fileHandle.availableData, encoding:NSUTF8StringEncoding) else {
+
+    private func readline(fileHandle: FileHandle) -> String? {
+        guard let s = NSString(data:fileHandle.availableData, encoding:String.Encoding.utf8.rawValue) else {
             return nil
         }
-        
+
         let line = s.rstrip()
         return line
     }
-    
-    private func which(program: String) -> String? {
+
+    private func which(_ program: String) -> String? {
         let s = (try? popen(["/usr/bin/which", program]))
         let line = s?.rstrip()
         return line

@@ -4,9 +4,6 @@ let package = Package(
     name: "autobuild",
     targets: [
         Target(
-            name: "sys",
-            dependencies: [.Target(name: "POSIX")]),
-        Target(
             name: "POSIX",
             dependencies: [.Target(name: "libc")]),
         Target(
@@ -15,7 +12,6 @@ let package = Package(
         Target(
             name: "dep",
             dependencies: [
-                .Target(name: "sys"), 
                 .Target(name: "POSIX"),
                 .Target(name: "libc"),
                 .Target(name: "CommandLine")
@@ -23,7 +19,6 @@ let package = Package(
                 Target(
             name: "autobuild",
             dependencies: [.Target(name: "libc"),
-                .Target(name: "sys"),
                 .Target(name: "dep")
             ]),
     ]

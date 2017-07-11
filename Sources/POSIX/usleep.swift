@@ -8,8 +8,10 @@
  See http://swift.org/CONTRIBUTORS.txt for Swift project authors
 */
 
-#if os(Linux)
-@_exported import Glibc
-#else
-@_exported import Darwin.C
-#endif
+import libc
+
+/// Suspends execution of the calling thread for the provided microseconds.
+public func usleep(microSeconds: Int) throws {
+    let rv = usleep(useconds_t(microSeconds))
+    guard rv == 0 else { throw SystemError.usleep(errno) }
+}

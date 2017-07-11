@@ -1,7 +1,7 @@
 /*
  This source file is part of the Swift.org open source project
 
- Copyright 2015 Apple Inc. and the Swift project authors
+ Copyright (c) 2014 - 2017 Apple Inc. and the Swift project authors
  Licensed under Apache License v2.0 with Runtime Library Exception
 
  See http://swift.org/LICENSE.txt for license information
@@ -27,23 +27,25 @@ public final class Target {
         self.name = name
         self.dependencies = dependencies
     }
-
-    /// Print a representation of the target as TOML.
-    public func toTOML(parent: String) -> String {
-        var result = ""
-        result += "[[\(parent)]]\n"
-        result += "name = \"\(name)\"\n"
-        result += "dependencies = ["
-        for dependency in dependencies {
-            switch dependency {
-            case .Target(let name):
-                result += "\"\(name)\","
-            }
-        }
-        result += "]\n"
-        return result
-    }
 }
+
+// MARK: ExpressibleByStringLiteral
+
+extension Target.Dependency : ExpressibleByStringLiteral {
+  public init(unicodeScalarLiteral value: String) {
+    self = .Target(name: value)
+  }
+  
+  public init(extendedGraphemeClusterLiteral value: String) {
+    self = .Target(name: value)
+  }
+
+  public init(stringLiteral value: String) {
+    self = .Target(name: value)
+  } 
+}
+
+// MARK: Equatable
 
 extension Target : Equatable { }
 public func ==(lhs: Target, rhs: Target) -> Bool {

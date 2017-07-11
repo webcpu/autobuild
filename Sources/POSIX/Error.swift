@@ -1,71 +1,74 @@
 /*
  This source file is part of the Swift.org open source project
 
- Copyright 2015 Apple Inc. and the Swift project authors
+ Copyright (c) 2014 - 2017 Apple Inc. and the Swift project authors
  Licensed under Apache License v2.0 with Runtime Library Exception
 
  See http://swift.org/LICENSE.txt for license information
  See http://swift.org/CONTRIBUTORS.txt for Swift project authors
 */
 
-public enum SystemError: ErrorType {
-    case chdir(Int32)
+public enum SystemError: Swift.Error {
+    case chdir(Int32, String)
     case close(Int32)
     case dirfd(Int32, String)
-    case fopen(Int32, String)
-    case fputs
     case fgetc(Int32)
     case fread(Int32)
     case getcwd(Int32)
     case mkdir(Int32, String)
     case mkdtemp(Int32)
-    case opendir(Int32, String)
     case pipe(Int32)
     case popen(Int32, String)
     case posix_spawn(Int32, [String])
     case read(Int32)
     case readdir(Int32, String)
-    case readlink(Int32, String)
     case realpath(Int32, String)
     case rename(Int32, old: String, new: String)
     case rmdir(Int32, String)
+    case setenv(Int32, String)
     case stat(Int32, String)
+    case symlink(Int32, String, dest: String)
     case symlinkat(Int32, String)
     case unlink(Int32, String)
+    case unsetenv(Int32, String)
     case waitpid(Int32)
+    case usleep(Int32)
 }
 
-#if os(OSX)
-    import func Darwin.strerror
-#else
-    import func Glibc.strerror
-#endif
+import func libc.strerror_r
+import var libc.EINVAL
+import var libc.ERANGE
 
 
 extension SystemError: CustomStringConvertible {
     public var description: String {
-
-        func strerror(errno: Int32) -> String {
-          #if os(OSX)
-            let cmsg = Darwin.strerror(errno)
-          #else
-            let cmsg = Glibc.strerror(errno)
-          #endif
-            let msg = String.fromCString(cmsg) ?? "Unknown Error"
-            return "\(msg) (\(errno))"
+        func strerror(_ errno: Int32) -> String {
+            var cap = 64
+            while cap <= 16 * 1024 {
+                var buf = [Int8](repeating: 0, count: cap)
+                let err = libc.strerror_r(errno, &buf, buf.count)
+                if err == EINVAL {
+                    return "Unknown error \(errno)"
+                }
+                if err == ERANGE {
+                    cap *= 2
+                    continue
+                }
+                if err != 0 {
+                    fatalError("strerror_r error: \(err)")
+                }
+                return "\(String(cString: buf)) (\(errno))"
+            }
+            fatalError("strerror_r error: \(ERANGE)")
         }
-
+        
         switch self {
-        case .chdir(let errno):
-            return "chdir error: \(strerror(errno))"
+        case .chdir(let errno, let path):
+            return "chdir error: \(strerror(errno)): \(path)"
         case .close(let errno):
             return "close error: \(strerror(errno))"
         case .dirfd(let errno, _):
             return "dirfd error: \(strerror(errno))"
-        case .fopen(let errno, let path):
-            return "fopen error: \(strerror(errno)), \(path)"
-        case .fputs:
-            return "fputs error"
         case .fgetc(let errno):
             return "fgetc error: \(strerror(errno))"
         case .fread(let errno):
@@ -76,8 +79,6 @@ extension SystemError: CustomStringConvertible {
             return "mkdir error: \(strerror(errno)): \(path)"
         case .mkdtemp(let errno):
             return "mkdtemp error: \(strerror(errno))"
-        case .opendir(let errno, _):
-            return "opendir error: \(strerror(errno))"
         case .pipe(let errno):
             return "pipe error: \(strerror(errno))"
         case .posix_spawn(let errno, let args):
@@ -86,35 +87,41 @@ extension SystemError: CustomStringConvertible {
             return "popen error: \(strerror(errno))"
         case .read(let errno):
             return "read error: \(strerror(errno))"
-        case readdir(let errno, _):
+        case .readdir(let errno, _):
             return "readdir error: \(strerror(errno))"
-        case readlink(let errno, let path):
-            return "readlink error: \(path), \(strerror(errno))"
-        case .realpath(let errno, _):
-            return "realpath error: \(strerror(errno))"
+        case .realpath(let errno, let path):
+            return "realpath error: \(strerror(errno)): \(path)"
         case .rename(let errno, let old, let new):
             return "rename error: \(strerror(errno)): \(old) -> \(new)"
         case .rmdir(let errno, let path):
             return "rmdir error: \(strerror(errno)): \(path)"
+        case .setenv(let errno, let key):
+            return "setenv error: \(strerror(errno)): \(key)"
         case .stat(let errno, _):
             return "stat error: \(strerror(errno))"
-        case symlinkat(let errno, _):
+        case .symlink(let errno, let path, let dest):
+            return "symlink error: \(strerror(errno)): \(path) -> \(dest)"
+        case .symlinkat(let errno, _):
             return "symlinkat error: \(strerror(errno))"
-        case unlink(let errno, let path):
+        case .unlink(let errno, let path):
             return "unlink error: \(strerror(errno)): \(path)"
-        case waitpid(let errno):
+        case .unsetenv(let errno, let key):
+            return "unsetenv error: \(strerror(errno)): \(key)"
+        case .waitpid(let errno):
             return "waitpid error: \(strerror(errno))"
+        case .usleep(let errno):
+            return "usleep error: \(strerror(errno))"
         }
     }
 }
 
 
-public enum Error: ErrorType {
-    case ExitStatus(Int32, [String])
-    case ExitSignal
+public enum Error: Swift.Error {
+    case exitStatus(Int32, [String])
+    case exitSignal
 }
 
-public enum ShellError: ErrorType {
+public enum ShellError: Swift.Error {
     case system(arguments: [String], SystemError)
     case popen(arguments: [String], SystemError)
 }
@@ -122,22 +129,10 @@ public enum ShellError: ErrorType {
 extension Error: CustomStringConvertible {
     public var description: String {
         switch self {
-        case .ExitStatus(let code, let args):
-            // Work around for a miscompile when converting error type to string. rdar://problem/23616384
-            struct TempStream: OutputStreamType {
-                var result: String = ""
-                mutating func write(string: String) {
-                    result += string
-                }
-            }
-            var stream = TempStream()
-            print(args, toStream: &stream)
-            return "exit(\(code)): \(stream.result)"
-            
-            //let args = prettyArguments(args)
-            //return "exit(\(code)): \(args)"
+        case .exitStatus(let code, let args):
+            return "exit(\(code)): \(prettyArguments(args))"
 
-        case .ExitSignal:
+        case .exitSignal:
             return "Child process exited with signal"
         }
     }

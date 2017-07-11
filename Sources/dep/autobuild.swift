@@ -3,13 +3,13 @@ import libc
 import POSIX
 import CommandLine
 
-enum VendingMachineError: ErrorType {
+enum VendingMachineError: Swift.Error {
     case InvalidSelection
     case InsufficientFunds(coinsNeeded: Int)
     case OutOfStock
 }
 
-public enum AutobuildError: ErrorType {
+public enum AutobuildError: Swift.Error {
     case InvalidUsage
     case InvalidParameter(hint: String)
 }
@@ -31,7 +31,7 @@ private struct Options {
 var eventMonitor : FSEventMonitor? = nil
 
 //MARK: main
-public func main(args: [String]) throws {
+public func main(_ args: [String]) throws {
     let cli         = CommandLine(arguments: args)
     let options     = Options()
     cli.addOptions(options.chdir, options.executable, options.help)
@@ -50,10 +50,7 @@ public func main(args: [String]) throws {
         return
     }
 
-    guard let rootd = options.chdir.value ?? (try? getcwd()) else {
-        let hint = "The project root directory is invalid"
-        throw AutobuildError.InvalidParameter(hint: hint)
-    }
+    let rootd = options.chdir.value ?? getcwd()
 
     //Check if it's a directory and the directory exsists
     if !isDirectory(rootd) {
@@ -73,26 +70,26 @@ public func main(args: [String]) throws {
     }
 
     //Monitor file changes
-    try monitor(rootd, executable: executable)
+    try monitor(rootd, executable)
 }
 
-func isExecutableFile(path: String) -> Bool {
-    let manager         = NSFileManager.defaultManager()
+func isExecutableFile(_ path: String) -> Bool {
+    let manager         = FileManager.default
     var isDir: ObjCBool = false
-    let fileExists      = manager.fileExistsAtPath(path, isDirectory: &isDir)
-    let executable      = manager.isExecutableFileAtPath(path)
-    return  fileExists && !isDir && executable
+    let fileExists      = manager.fileExists(atPath: path, isDirectory: &isDir)
+    let executable      = manager.isExecutableFile(atPath: path)
+    return  fileExists && !isDir.boolValue && executable
 }
 
-func isDirectory(path: String) -> Bool {
-    let manager         = NSFileManager.defaultManager()
+func isDirectory(_ path: String) -> Bool {
+    let manager         = FileManager.default
     var isDir: ObjCBool = false
-    let fileExists      = manager.fileExistsAtPath(path, isDirectory: &isDir)
-    return  fileExists && isDir
+    let fileExists      = manager.fileExists(atPath: path, isDirectory: &isDir)
+    return  fileExists && isDir.boolValue
 }
 
 //MARK: monitor
-func monitor(dir: String, executable: String) throws {
+func monitor(_ dir: String, _ executable: String) throws {
     Log.info("Start monitoring \(dir)")
 
     try POSIX.chdir(dir)
@@ -100,23 +97,20 @@ func monitor(dir: String, executable: String) throws {
     installSignalHandlers()
 
     let lineHandler = { (line: String) in
-        handleLine1(line, executable: executable)
+        handleLine1(line, executable)
     }
 
     eventMonitor = FSEventMonitor(arguments: [dir], action: lineHandler)
     eventMonitor?.run()
 }
 
-func isSwiftFile(line: String) -> Bool {
-    if let ext  = NSURL(string: line)?.pathExtension?.lowercaseString {
-        if ext.lowercaseString == "swift" {
-            return true
-        }
-    }
-    return false
+func isSwiftFile(_ line: String) -> Bool {
+    let ext  = URL(fileURLWithPath: line).pathExtension.lowercased()
+    print(ext)
+    return  ext == "swift"
 }
 
-func handleLine(line: String, executable: String) {
+func handleLine(_ line: String, _ executable: String) {
     if !isSwiftFile(line) {
         return
     }
@@ -130,7 +124,7 @@ func handleLine(line: String, executable: String) {
     }
 }
 
-func handleLine1(line: String, executable: String) {
+func handleLine1(_ line: String, _ executable: String) {
     if !isSwiftFile(line) {
         return
     }
@@ -145,7 +139,7 @@ func installSignalHandlers() {
 }
 
 func terminateProcessTree(pid: Int32)  {
-    Log.error("\nTerminating subprocesses")
+    Log.error(closure: "\nTerminating subprocesses")
     if eventMonitor != nil {
         eventMonitor!.canMonitor = false
         eventMonitor!.terminate()
