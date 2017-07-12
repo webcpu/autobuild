@@ -3,12 +3,6 @@ import libc
 import POSIX
 import CommandLine
 
-enum VendingMachineError: Swift.Error {
-    case InvalidSelection
-    case InsufficientFunds(coinsNeeded: Int)
-    case OutOfStock
-}
-
 public enum AutobuildError: Swift.Error {
     case InvalidUsage
     case InvalidParameter(hint: String)
@@ -20,12 +14,17 @@ private struct Options {
         helpMessage: "Change working directory before any other operation")
 
     let executable = StringOption(shortFlag: "s",
-        longFlag: "script",
-        helpMessage: "Build script path")
+                                  longFlag: "script",
+                                  required: true,
+                                  helpMessage: "Build script path")
+
+    let types = StringOption(shortFlag: "t",
+                             longFlag: "types",
+                             helpMessage: "file extensions to be monitored, such as \"{swift,m,h}\".If there is no file extensions specified, all kinds of files in the working directory will be monitored.")
 
     let help = BoolOption(shortFlag: "h",
-        longFlag: "help",
-        helpMessage: "Print the help message")
+                          longFlag: "help",
+                          helpMessage: "print usage\nautobuild (-c|--chdir workingdirectory) (-s|--script scriptpath) (-t|--types fileextensions)\nExecute build script automatically when any specified files in working directory are modified.\nExample:\nautobuild -c ./ -s ./build.sh -t \"{swift,m,h}\"")
 }
 
 var eventMonitor : FSEventMonitor? = nil
@@ -34,7 +33,7 @@ var eventMonitor : FSEventMonitor? = nil
 public func main(_ args: [String]) throws {
     let cli         = CommandLine(arguments: args)
     let options     = Options()
-    cli.addOptions(options.chdir, options.executable, options.help)
+    cli.addOptions(options.chdir, options.executable, options.types, options.help)
 
     //parse options
     do {
@@ -45,7 +44,8 @@ public func main(_ args: [String]) throws {
     }
 
     //validate arguments
-    if options.help.value {
+    let shouldHelp: Bool = options.help.value || (options.chdir.value == nil && options.executable.value == nil)
+    if shouldHelp {
         cli.printUsage()
         return
     }
@@ -63,14 +63,17 @@ public func main(_ args: [String]) throws {
         throw AutobuildError.InvalidParameter(hint: hint)
     }
 
-    //Check if file exsists.
+    let types = options.types.value ?? ""
+    let fileExtensions = types.components(separatedBy: ",").map({$0.trimmingCharacters(in: CharacterSet(charactersIn: "{ \t}"))}).map({$0.lowercased()}).filter({$0.characters.count > 0})
+
+    //Check if file exists.
     if !isExecutableFile(executable) {
         let hint = "The build script isn't executable or doesn't exist"
         throw AutobuildError.InvalidParameter(hint: hint)
     }
 
     //Monitor file changes
-    try monitor(rootd, executable)
+    try monitor(rootd, executable, fileExtensions)
 }
 
 func isExecutableFile(_ path: String) -> Bool {
@@ -89,50 +92,34 @@ func isDirectory(_ path: String) -> Bool {
 }
 
 //MARK: monitor
-func monitor(_ dir: String, _ executable: String) throws {
-    Log.info("Start monitoring \(dir)")
+func monitor(_ dir: String, _ executable: String, _ fileExtensions: [String]) throws {
+    Log.info("Start monitoring:\ndir: \(dir)\nfile extensions: \(fileExtensions)")
 
     try POSIX.chdir(dir)
 
     installSignalHandlers()
 
-    let lineHandler = { (line: String) in
-        handleLine1(line, executable)
-    }
-
+    let lineHandler = { (content: String) in handleModifiedFiles(content, executable, fileExtensions) }
     eventMonitor = FSEventMonitor(arguments: [dir], action: lineHandler)
     eventMonitor?.run()
 }
 
-func isSwiftFile(_ line: String) -> Bool {
-    let ext  = URL(fileURLWithPath: line).pathExtension.lowercased()
-    print(ext)
-    return  ext == "swift"
+func isFile(_ fileExtension: String, _ line: String) -> Bool {
+    let url = URL(fileURLWithPath: line)
+    let filename = url.lastPathComponent
+    let ext = url.pathExtension.lowercased()
+    return !filename.hasPrefix(".") && ext == fileExtension
 }
 
-func handleLine(_ line: String, _ executable: String) {
-    if !isSwiftFile(line) {
-        return
+func handleModifiedFiles(_ content: String, _ executable: String, _ fileExtensions: [String]) {
+    let lines = content.components(separatedBy: .newlines)
+    let hasSubsetOfFileExtensions = { (path: String) -> Bool in
+        return fileExtensions.count == 0 ? true : fileExtensions.filter({isFile($0, path)}).count > 0
     }
-
-    print(line)
-    //SyncTask.execute(executable)
-    let arguments = [executable]
-    try? popen(arguments, redirectStandardError: true, environment:[:]) { line in
-        print(line)
-        print(line.characters.count)
+    if lines.filter(hasSubsetOfFileExtensions).count > 0 {
+        SyncTask.execute(executable)
     }
 }
-
-func handleLine1(_ line: String, _ executable: String) {
-    if !isSwiftFile(line) {
-        return
-    }
-
-    print(line)
-    SyncTask.execute(executable)
-}
-
 
 func installSignalHandlers() {
     signal(SIGINT, terminateProcessTree)
