@@ -273,6 +273,10 @@ public class CommandLine {
     addOptions(options)
   }
 
+  public func getOptions() -> [Option] {
+      return _options
+  }
+    
   /**
    * Parses command-line arguments into their matching Option values.
    *

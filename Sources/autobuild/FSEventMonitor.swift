@@ -53,7 +53,6 @@ public struct FSEventMonitor {
         while (canMonitor) {
             let fileHandle  = (task.standardOutput! as AnyObject).fileHandleForReading
             if let line     = readline(fileHandle: fileHandle!) {
-                print("Event: \(line)")
                 action(line)
             }
         }

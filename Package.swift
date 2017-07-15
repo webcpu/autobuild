@@ -7,20 +7,15 @@ let package = Package(
             name: "POSIX",
             dependencies: [.Target(name: "libc")]),
         Target(
-            name: "CommandLine",
+            name: "CommandLineKit",
             dependencies: [.Target(name: "libc")]),
         Target(
-            name: "dep",
+            name: "autobuild",
             dependencies: [
                 .Target(name: "POSIX"),
                 .Target(name: "libc"),
-                .Target(name: "CommandLine")
-            ]),
-                Target(
-            name: "autobuild",
-            dependencies: [.Target(name: "libc"),
-                .Target(name: "dep")
-            ]),
+                .Target(name: "CommandLineKit")
+            ])
     ]
 )
 

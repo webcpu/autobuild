@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_75"
+               BlueprintIdentifier = "OBJ_77"
                BuildableName = "libc.framework"
                BlueprintName = "libc"
                ReferencedContainer = "container:autobuild.xcodeproj">
@@ -28,7 +28,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_83"
+               BlueprintIdentifier = "OBJ_96"
                BuildableName = "PackageDescription.framework"
                BlueprintName = "PackageDescription"
                ReferencedContainer = "container:autobuild.xcodeproj">
@@ -42,9 +42,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_95"
-               BuildableName = "autobuild"
-               BlueprintName = "autobuild"
+               BlueprintIdentifier = "OBJ_96"
+               BuildableName = "PackageDescription.framework"
+               BlueprintName = "PackageDescription"
                ReferencedContainer = "container:autobuild.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -56,7 +56,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_112"
+               BlueprintIdentifier = "OBJ_121"
                BuildableName = "POSIX.framework"
                BlueprintName = "POSIX"
                ReferencedContainer = "container:autobuild.xcodeproj">
@@ -70,9 +70,23 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_114"
-               BuildableName = "CommandLineKit.framework"
-               BlueprintName = "CommandLineKit"
+               BlueprintIdentifier = "OBJ_111"
+               BuildableName = "CommandLine.framework"
+               BlueprintName = "CommandLine"
+               ReferencedContainer = "container:autobuild.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "OBJ_124"
+               BuildableName = "dep.framework"
+               BlueprintName = "dep"
                ReferencedContainer = "container:autobuild.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -88,7 +102,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_147"
+               BlueprintIdentifier = "OBJ_163"
                BuildableName = "depTests.xctest"
                BlueprintName = "depTests"
                ReferencedContainer = "container:autobuild.xcodeproj">
@@ -98,7 +112,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_157"
+               BlueprintIdentifier = "OBJ_181"
                BuildableName = "autobuildTests.xctest"
                BlueprintName = "autobuildTests"
                ReferencedContainer = "container:autobuild.xcodeproj">
@@ -108,7 +122,7 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "OBJ_172"
+               BlueprintIdentifier = "OBJ_198"
                BuildableName = "sysTests.xctest"
                BlueprintName = "sysTests"
                ReferencedContainer = "container:autobuild.xcodeproj">
@@ -131,7 +145,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "OBJ_75"
+            BlueprintIdentifier = "OBJ_77"
             BuildableName = "libc.framework"
             BlueprintName = "libc"
             ReferencedContainer = "container:autobuild.xcodeproj">

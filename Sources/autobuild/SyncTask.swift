@@ -2,10 +2,10 @@ import Foundation
 
 public struct SyncTask {
     public static func execute(_ launchPath: String) {
-        execute(launchPath, arguments:[])
+        execute(launchPath, [])
     }
 
-    public static func execute(_ launchPath: String, arguments: [String]) {
+    public static func execute(_ launchPath: String, _ arguments: [String]) {
         //Init Task
         let semaphore   = DispatchSemaphore(value: 0)
         let task        = Process()
@@ -20,7 +20,7 @@ public struct SyncTask {
 
         //Wait for Task
         task.waitUntilExit()
-        semaphore.wait(timeout: DispatchTime.distantFuture)
+        _ = semaphore.wait(timeout: DispatchTime.distantFuture)
     }
 }
 
