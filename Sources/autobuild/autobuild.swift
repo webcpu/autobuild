@@ -34,8 +34,6 @@ private struct Options {
                           helpMessage: helpHelpMessage)
 }
 
-var eventMonitor : FSEventMonitor? = nil
-
 struct MonitorOption {
     let workingDirectory: String
     let executable: String
@@ -129,15 +127,17 @@ private func validateMonitorOption(_ option: MonitorOption) -> Either<AutobuildE
 }
 
 private func validateWorkingDirectory(_ option: MonitorOption) -> Either<AutobuildError, MonitorOption> {
-    //Check if it's a directory and the directory exists
     let hint = "The project root directory doesn't exist"
     return isDirectory(option.workingDirectory) ? Right(option) : Left(AutobuildError.InvalidParameter(hint: hint))
 }
 
 private func validateExecutable(_ option: MonitorOption) -> Either<AutobuildError, MonitorOption> {
-    //Check if file exists.
+    return isExecutableFile(option.executable) ? Right(option) : buildScriptError()
+}
+
+private func buildScriptError() ->  Either<AutobuildError, MonitorOption> {
     let hint = "The build script isn't executable or doesn't exist"
-    return isExecutableFile(option.executable) ? Right(option) : Left(AutobuildError.InvalidParameter(hint: hint))
+    return Left(AutobuildError.InvalidParameter(hint: hint))
 }
 
 //MARK: -isExecutableFile
@@ -162,7 +162,7 @@ private func monitor(_ option: MonitorOption) -> Either<AutobuildError, Bool> {
     changeWorkingDirectory(option.workingDirectory)
     installSignalHandlers()
 
-    _monitor(option.workingDirectory, option.executable, option.fileExtensions)
+    monitorEvent([option.workingDirectory], handleFiles(option.executable, option.fileExtensions))
     return Right(true)
 }
 
@@ -192,21 +192,10 @@ func installSignalHandlers() {
 
 func terminateProcessTree(pid: Int32)  {
     Log.error(closure: "\nTerminating subprocesses")
-    eventMonitor >>>= _terminateProcessTree
+    didTerminate(Process())
 }
 
-func _terminateProcessTree(monitor: FSEventMonitor) {
-    eventMonitor!.canMonitor = false
-    eventMonitor!.terminate()
-    wait(nil)
-}
-
-//MARK: _monitor
-func _monitor(_ dir: String, _ executable: String, _ fileExtensions: [String]) {
-    eventMonitor    = FSEventMonitor(arguments: [dir], action: handleFiles(executable, fileExtensions))
-    eventMonitor?.run()
-}
-
+//MARK: handleFiles
 func handleFiles(_ executable: String, _ fileExtensions: [String]) -> (String) -> Void {
     return {( content: String) in handleModifiedFiles(content, executable, fileExtensions) }
 }
@@ -227,12 +216,73 @@ func anyFileExtensions(_ fileExtensions: [String]) -> (String) -> Bool {
 }
 
 func _anyFileExtensions(_ fileExtensions: [String], _ path: String) -> Bool {
-    let f = not .. null .. filter({isFile($0, path)})
-    return f(fileExtensions)
+    let hasFileExtensions = not .. null .. filter({isFile($0, path)})
+    let isHiddenFile      = { isPrefixOf(".", takeFileName($0)) }
+    return hasFileExtensions(fileExtensions) && !isHiddenFile(path)
 }
 
 func isFile(_ fileExtension: String, _ path: String) -> Bool {
     let ext1 = map(toLower, takeExtension(path))
     let ext2 = ("." + fileExtension)
     return ext1 == ext2
+}
+
+//MARK: monitorEvent
+func monitorEvent(_ arguments: [String], _ action: @escaping (String) -> Void) {
+    arguments >>>= createWatchProcess >>>= watch >>>= build(action)
+}
+
+//MARK: -createWatchProcess
+func createWatchProcess(arguments: [String]) -> Process? {
+    let task            = Process()
+    task.launchPath     = fswatchPath()
+    task.arguments      = arguments
+    task.standardOutput = Pipe()
+    task.terminationHandler = didTerminate
+    return task
+}
+
+func fswatchPath() -> String? {
+    let path            = which("fswatch") ??  "/usr/local/bin/fswatch"
+    isExecutableFile(path) ? () : exitfswatch()
+    return path >>>= rstrip
+}
+
+func exitfswatch() {
+    print("Please install fswatch at first:")
+    print("brew install fswatch")
+    POSIX.exit(-1)
+}
+
+func didTerminate(_ process: Process) -> Void {
+    Log.error(closure: "Terminated subprocesses")
+    POSIX.exit(-1)
+}
+
+func which(_ program: String) -> String? {
+    return (try? popen(["/usr/bin/which", program])) >>>= rstrip
+}
+
+//MARK: -watch
+func watch(_ task: Process) -> Process? {
+    Async.background({task.launch()})
+    return task
+}
+
+//MARK: -build
+func build(_ action: @escaping (String) -> Void) -> (Process) -> Void {
+    return { task in while (true) { task >>>= fileHandleForReading >>>= readline >>>= action }}
+}
+
+func fileHandleForReading(_ task: Process) -> FileHandle {
+    return (task.standardOutput! as AnyObject).fileHandleForReading
+}
+
+func readline(_ fileHandle: FileHandle) -> String? {
+    let data: String? = NSString(data:fileHandle.availableData, encoding:String.Encoding.utf8.rawValue) as String?
+    return data >>>= rstrip
+}
+
+func rstrip(_ xs: String) -> String {
+    return xs.trimmingCharacters(in: NSCharacterSet.newlines)
 }
