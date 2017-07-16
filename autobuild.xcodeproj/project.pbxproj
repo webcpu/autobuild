@@ -10,10 +10,8 @@
 		EC2E51161F1A338100D1495F /* HaskellSwift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EC2E51151F1A338100D1495F /* HaskellSwift.a */; };
 		OBJ_100 /* Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_19 /* Async.swift */; };
 		OBJ_101 /* autobuild.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_20 /* autobuild.swift */; };
-		OBJ_102 /* FSEventMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_21 /* FSEventMonitor.swift */; };
 		OBJ_103 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_22 /* Logger.swift */; };
 		OBJ_104 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_23 /* main.swift */; };
-		OBJ_105 /* SyncTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_24 /* SyncTask.swift */; };
 		OBJ_107 /* libc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_67 /* libc.framework */; };
 		OBJ_108 /* POSIX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_70 /* POSIX.framework */; };
 		OBJ_109 /* CommandLineKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_71 /* CommandLineKit.framework */; };
@@ -40,7 +38,6 @@
 		OBJ_152 /* AutobuildTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_47 /* AutobuildTests.swift */; };
 		OBJ_153 /* LogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_48 /* LogTests.swift */; };
 		OBJ_154 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_49 /* main.swift */; };
-		OBJ_155 /* SyncTaskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_50 /* SyncTaskTests.swift */; };
 		OBJ_162 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_52 /* main.swift */; };
 		OBJ_163 /* XCTestCaseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_53 /* XCTestCaseProvider.swift */; };
 		OBJ_165 /* libc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_67 /* libc.framework */; };
@@ -140,10 +137,8 @@
 		OBJ_17 /* Version.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Version.swift; sourceTree = "<group>"; };
 		OBJ_19 /* Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Async.swift; sourceTree = "<group>"; };
 		OBJ_20 /* autobuild.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = autobuild.swift; sourceTree = "<group>"; };
-		OBJ_21 /* FSEventMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FSEventMonitor.swift; sourceTree = "<group>"; };
 		OBJ_22 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		OBJ_23 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		OBJ_24 /* SyncTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTask.swift; sourceTree = "<group>"; };
 		OBJ_26 /* chdir.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = chdir.swift; sourceTree = "<group>"; };
 		OBJ_27 /* env.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = env.swift; sourceTree = "<group>"; };
 		OBJ_28 /* Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
@@ -165,7 +160,6 @@
 		OBJ_47 /* AutobuildTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutobuildTests.swift; sourceTree = "<group>"; };
 		OBJ_48 /* LogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogTests.swift; sourceTree = "<group>"; };
 		OBJ_49 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		OBJ_50 /* SyncTaskTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTaskTests.swift; sourceTree = "<group>"; };
 		OBJ_52 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		OBJ_53 /* XCTestCaseProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCTestCaseProvider.swift; sourceTree = "<group>"; };
 		OBJ_55 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
@@ -279,10 +273,8 @@
 			children = (
 				OBJ_19 /* Async.swift */,
 				OBJ_20 /* autobuild.swift */,
-				OBJ_21 /* FSEventMonitor.swift */,
 				OBJ_22 /* Logger.swift */,
 				OBJ_23 /* main.swift */,
-				OBJ_24 /* SyncTask.swift */,
 			);
 			name = autobuild;
 			path = Sources/autobuild;
@@ -338,13 +330,12 @@
 				OBJ_47 /* AutobuildTests.swift */,
 				OBJ_48 /* LogTests.swift */,
 				OBJ_49 /* main.swift */,
-				OBJ_50 /* SyncTaskTests.swift */,
 			);
 			name = depTests;
 			path = Tests/depTests;
 			sourceTree = SOURCE_ROOT;
 		};
-		OBJ_5 /*  */ = {
+		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
 				OBJ_6 /* Package.swift */,
@@ -357,7 +348,6 @@
 				EC2E51151F1A338100D1495F /* HaskellSwift.a */,
 				OBJ_66 /* Products */,
 			);
-			name = "";
 			sourceTree = "<group>";
 		};
 		OBJ_51 /* autobuildTests */ = {
@@ -577,7 +567,7 @@
 			knownRegions = (
 				en,
 			);
-			mainGroup = OBJ_5 /*  */;
+			mainGroup = OBJ_5;
 			productRefGroup = OBJ_66 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -634,7 +624,6 @@
 				OBJ_152 /* AutobuildTests.swift in Sources */,
 				OBJ_153 /* LogTests.swift in Sources */,
 				OBJ_154 /* main.swift in Sources */,
-				OBJ_155 /* SyncTaskTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -689,10 +678,8 @@
 			files = (
 				OBJ_100 /* Async.swift in Sources */,
 				OBJ_101 /* autobuild.swift in Sources */,
-				OBJ_102 /* FSEventMonitor.swift in Sources */,
 				OBJ_103 /* Logger.swift in Sources */,
 				OBJ_104 /* main.swift in Sources */,
-				OBJ_105 /* SyncTask.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

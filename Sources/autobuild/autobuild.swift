@@ -1,9 +1,18 @@
+//
+//  autobuild.swift
+//  autobuild
+//
+//  Created by Liang on 07/12/2015.
+//  Copyright © 2015 UnchartedWorks. All rights reserved.
+//
+
 import Foundation
 import libc
 import POSIX
 import CommandLineKit
 import HaskellSwift
 
+//MARK: - data structures
 public enum AutobuildError: Swift.Error {
     case InvalidUsage
     case InvalidParameter(hint: String)
@@ -40,7 +49,7 @@ struct MonitorOption {
     let fileExtensions: [String]
 }
 
-//MARK: - main
+//MARK: - autobuild
 public func autobuild(_ args: [String]) {
     let result = parse(args) >>>= createMonitorOption >>>= validateMonitorOption >>>= monitor
     printResult(result)
@@ -160,8 +169,6 @@ private func monitor(_ option: MonitorOption) -> Either<AutobuildError, Bool> {
     Log.info("Start monitoring:\nWorking directory: \(option.workingDirectory)\nFile extensions: \(option.fileExtensions)")
 
     changeWorkingDirectory(option.workingDirectory)
-    installSignalHandlers()
-
     monitorEvent([option.workingDirectory], handleFiles(option.executable, option.fileExtensions))
     return Right(true)
 }
@@ -185,25 +192,17 @@ func _changeWorkingDirectory(_ dir: String) {
     }
 }
 
-//MARK: installSignalHandlers
-func installSignalHandlers() {
-    signal(SIGINT, terminateProcessTree)
-}
-
-func terminateProcessTree(pid: Int32)  {
-    Log.error(closure: "\nTerminating subprocesses")
-    didTerminate(Process())
-}
-
 //MARK: handleFiles
 func handleFiles(_ executable: String, _ fileExtensions: [String]) -> (String) -> Void {
     return {( content: String) in handleModifiedFiles(content, executable, fileExtensions) }
 }
 
+//MARK: -handleModifiedFiles
 func handleModifiedFiles(_ content: String, _ executable: String, _ fileExtensions: [String]) {
-    isFileModified(fileExtensions, content) ? SyncTask.execute("/bin/bash", [executable]) : ()
+    isFileModified(fileExtensions, content) ? runProcess(["/bin/bash", executable]) : ()
 }
 
+//MARK: --isFileModified
 func isFileModified(_ fileExtensions: [String], _ content: String) -> Bool {
     let getModifiedFiles: (String) -> [String] = filter(anyFileExtensions(fileExtensions)) .. lines
     let isModified: ([String]) -> Bool         = not .. null .. map({Log.info($0)})
@@ -227,6 +226,23 @@ func isFile(_ fileExtension: String, _ path: String) -> Bool {
     return ext1 == ext2
 }
 
+//MARK: --runProcess
+func runProcess(_ command: [String]) {
+    command >>>= createProcess >>>= launchProcess
+}
+
+private func createProcess(_ command: [String]) -> Process? {
+    let process        = Process()
+    process.launchPath = head(command)
+    process.arguments  = tail(command)
+    return process
+}
+
+private func launchProcess(_ process: Process) {
+    process.launch()
+    process.waitUntilExit()
+}
+
 //MARK: monitorEvent
 func monitorEvent(_ arguments: [String], _ action: @escaping (String) -> Void) {
     arguments >>>= createWatchProcess >>>= watch >>>= build(action)
@@ -238,7 +254,6 @@ func createWatchProcess(arguments: [String]) -> Process? {
     task.launchPath     = fswatchPath()
     task.arguments      = arguments
     task.standardOutput = Pipe()
-    task.terminationHandler = didTerminate
     return task
 }
 
@@ -251,11 +266,6 @@ func fswatchPath() -> String? {
 func exitfswatch() {
     print("Please install fswatch at first:")
     print("brew install fswatch")
-    POSIX.exit(-1)
-}
-
-func didTerminate(_ process: Process) -> Void {
-    Log.error(closure: "Terminated subprocesses")
     POSIX.exit(-1)
 }
 
