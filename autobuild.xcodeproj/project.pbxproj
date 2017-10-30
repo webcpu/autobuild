@@ -126,7 +126,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		ECFC75BE1FA7217700B0C5E7 /* libHaskellSwift.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libHaskellSwift.a; path = Support/HaskellSwift/libHaskellSwift.a; sourceTree = "<group>"; };
 		OBJ_10 /* libc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = libc.swift; sourceTree = "<group>"; };
 		OBJ_12 /* JSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSON.swift; sourceTree = "<group>"; };
 		OBJ_13 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
@@ -336,7 +335,6 @@
 		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
-				ECFC75BE1FA7217700B0C5E7 /* libHaskellSwift.a */,
 				OBJ_6 /* Package.swift */,
 				OBJ_7 /* Sources */,
 				OBJ_45 /* Tests */,
