@@ -8,6 +8,22 @@ Execute build script automatically when any specified files in working directory
 
 <img width="710" alt="screen shot 2017-10-30 at 11 03 18" src="https://user-images.githubusercontent.com/4646838/32166129-43137168-bd65-11e7-9ec6-ec623eb562fb.png">
 
+## Installation
+### Prerequisites
+- macOS 10.13
+- Xcode 9+ & Xcode command line tools
+- fswatch
+```
+brew install fswatch
+```
+
+### Install
+``` 
+git clone https://github.com/unchartedworks/autobuild.git
+cd autobuild
+./build.sh 
+```
+
 ## Usage
 ```
 Usage: autobuild [options]
