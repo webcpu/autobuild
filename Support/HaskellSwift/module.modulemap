@@ -1,3 +1,0 @@
-framework module HaskellSwift {
-    header "HaskellSwift-Swift.h"
-}
