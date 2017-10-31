@@ -2,7 +2,10 @@
 
 Execute build script automatically when any specified files in working directory are modified.
 
-## Example
+## Examples
+
+```autobuild -s ./playground.sh -t "{red}"```
+<img width="744" alt="screen shot 2017-10-31 at 09 46 08" src="https://user-images.githubusercontent.com/4646838/32214912-a36e2b3c-be20-11e7-95ed-115f9ffe82d4.png">
 
 ```autobuild -s ./build.sh -t "{swift}"```
 
