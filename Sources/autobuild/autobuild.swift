@@ -61,7 +61,9 @@ func printResult(_ result: Either<AutobuildError, Bool>) {
         Darwin.exit(0)
     }
 
-    let err: AutobuildError = fromLeft(result)
+    guard let err: AutobuildError = try? fromLeft(result) else {
+        Darwin.exit(1)
+    }
     switch err {
     case .InvalidUsage:
         Darwin.exit(1)

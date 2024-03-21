@@ -14,5 +14,5 @@
  could be typed into a Terminal to re-attempt execution.
 */
 public func prettyArguments(_ args: [String]) -> String {
-    return args.map { $0.characters.split(separator: " ").map(String.init).joined(separator: "\\ ") }.joined(separator: " ")
+    return args.map { $0.split(separator: " ").map(String.init).joined(separator: "\\ ") }.joined(separator: " ")
 }

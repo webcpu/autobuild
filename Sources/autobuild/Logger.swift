@@ -28,26 +28,26 @@ public struct Log {
     }
 
     public static func verbose(_ closure: @autoclosure () -> String?) {
-        log(closure, ConsoleColor.verbose)
+        log(closure(), ConsoleColor.verbose)
     }
 
     public static func debug(_ closure: @autoclosure () -> String?) {
-        log(closure, ConsoleColor.debug)
+        log(closure(), ConsoleColor.debug)
     }
 
     public static func info(_ closure: @autoclosure () -> String?) {
-        log(closure, ConsoleColor.info)
+        log(closure(), ConsoleColor.info)
     }
 
     public static func warning(_ closure: @autoclosure () -> String?) {
-        log(closure, ConsoleColor.warning)
+        log(closure(), ConsoleColor.warning)
     }
 
     public static func error( closure: @autoclosure () -> String?) {
-        log(closure, ConsoleColor.error)
+        log(closure(), ConsoleColor.error)
     }
 
     static func severe( closure: @autoclosure () -> String?) {
-        log(closure, ConsoleColor.severe)
+        log(closure(), ConsoleColor.severe)
     }
 }

@@ -1,0 +1,15 @@
+{
+  "originHash" : "4ad5b25410344117bf314735db6d20c1a9a6aa943b1c2343de3028333f4b69f8",
+  "pins" : [
+    {
+      "identity" : "haskellswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/webcpu/HaskellSwift.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "908bff3c624af2fe4454daf3811e07df10302ba3"
+      }
+    }
+  ],
+  "version" : 3
+}
